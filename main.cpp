@@ -3,6 +3,7 @@
 #include <string>
 #include <stack>
 #include <cctype>
+#include <complex>
 #include <utility>
 #include <map>
 using namespace std;
@@ -103,6 +104,38 @@ map<string, double> obtenerValores(const Nodo* nodo) {
         }
     }
     return valores;
+}
+double evaluar(const Nodo* nodo, const map<string, double>& valores) {
+    if (!nodo) return 0;
+    if (isalnum(nodo->valor[0]) && !ispunct(nodo->valor[0])) {
+        if (isalpha(nodo->valor[0])) {
+            return valores.at(nodo->valor);
+        } else {
+            return stod(nodo->valor);
+        }
+
+    }
+    double izq = evaluar(nodo->izq, valores);
+    double der = evaluar(nodo->der, valores);
+    if (nodo->valor == "+") return izq + der;
+    if (nodo->valor == "-") return izq - der;
+    if (nodo->valor == "*") return izq * der;
+    if (nodo->valor == "/") return izq / der;
+    if (nodo->valor == "^") return pow(izq, der);
+
+
+    return 0;
+}
+
+Nodo* reemplazavalores(const Nodo* nodo, const map<string, double>& valores) {
+    if (!nodo) return nullptr;
+    Nodo* nuevo = new Nodo(nodo->valor);
+    if (isalpha(nodo->valor[0])) {
+        nuevo->valor = to_string(valores.at(nodo->valor));
+    }
+    nuevo->izq = reemplazavalores(nodo->izq, valores);
+    nuevo->der = reemplazavalores(nodo->der, valores);
+    return nuevo;
 }
 // Genera el archivo DOT recursivamente
 void generarDotRec(const Nodo* nodo, ofstream& out) {
